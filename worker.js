@@ -1,3 +1,13 @@
+export default {
+  async fetch(request, env, ctx) {
+    if (request.method === "OPTIONS") {
+      return handleOptions(request);
+    } else {
+      return handleRequest(request);
+    }
+  }
+};
+
 async function handleRequest(request) {
   const originalUrl = new URL(request.url);
   const baseUrlParam = originalUrl.searchParams.get("url");
@@ -11,7 +21,7 @@ async function handleRequest(request) {
         targetUrl.searchParams.append(key, value);
       }
     }
-    if (new URL(baseUrlParam).pathname === "/" || new URL(baseUrlParam).pathname === "") {
+    if (targetUrl.pathname === "/" || targetUrl.pathname === "") {
       targetUrl.pathname = originalUrl.pathname;
     }
   } else {
@@ -19,15 +29,13 @@ async function handleRequest(request) {
     if (!referer) {
       return new Response("Missing `url` parameter and referer", { status: 400 });
     }
-
     const refUrl = new URL(referer);
     const refBase = refUrl.searchParams.get("url");
     if (!refBase) {
       return new Response("Missing base `url` in referer", { status: 400 });
     }
-
     targetUrl = new URL(refBase);
-    if (new URL(refBase).pathname === "/" || new URL(refBase).pathname === "") {
+    if (targetUrl.pathname === "/" || targetUrl.pathname === "") {
       targetUrl.pathname = originalUrl.pathname;
     }
     targetUrl.search = originalUrl.search;
@@ -61,7 +69,6 @@ async function handleRequest(request) {
       let html = await proxiedRes.text();
       const baseProxy = `https://proxy.kimtin-tr.workers.dev/?url=`;
 
-      // Chuyển các href/src/action thành proxy link
       html = html.replace(
         /(?:href|src|action)=["']([^"']+)["']/gi,
         (match, p1) => {
@@ -114,11 +121,3 @@ function handleOptions(request) {
 
   return new Response(null, { status: 204, headers });
 }
-
-addEventListener("fetch", event => {
-  if (event.request.method === "OPTIONS") {
-    event.respondWith(handleOptions(event.request));
-  } else {
-    event.respondWith(handleRequest(event.request));
-  }
-});
