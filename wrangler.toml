@@ -1,0 +1,3 @@
+name = "cloudflare-proxy"
+main = "worker.js"  # Đường dẫn đến file mã Worker
+compatibility_date = "2025-08-01"
