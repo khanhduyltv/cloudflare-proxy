@@ -1,3 +1,4 @@
 name = "cloudflare-proxy"
-main = "worker.js"  # Đường dẫn đến file mã Worker
-compatibility_date = "2025-08-01"
+main = "worker.js"
+compatibility_date = "2024-08-01" # hoặc ngày hiện tại
+module = true
